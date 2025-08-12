@@ -162,6 +162,7 @@
             body {
                 background-color: white;
                 padding: 0;
+                margin: 0;
             }
             .container {
                 box-shadow: none;
@@ -174,9 +175,23 @@
             }
             .delivery-note {
                 margin: 0;
+                /* Tetap 92x92mm untuk HTML tapi dengan canvas 100x100mm */
+                width: 92mm;
+                height: 92mm;
             }
             .table-title-input {
                 pointer-events: none;
+            }
+            /* Print area dengan ukuran canvas 100x100mm */
+            #printArea {
+                width: 100mm;
+                height: 100mm;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0;
+                padding: 4mm; /* Padding untuk centering */
+                box-sizing: border-box;
             }
         }
 
@@ -480,9 +495,46 @@
             URL.revokeObjectURL(url);
         }
 
-        // Fungsi print
+        // Fungsi print dengan ukuran canvas 100x100mm
         function printLabel() {
+            // Set page size untuk print
+            const printStyle = document.createElement('style');
+            printStyle.textContent = `
+                @page {
+                    size: 100mm 100mm;
+                    margin: 0;
+                }
+                @media print {
+                    body {
+                        margin: 0;
+                        padding: 0;
+                        background: white;
+                    }
+                    #printArea {
+                        width: 100mm !important;
+                        height: 100mm !important;
+                        display: flex !important;
+                        align-items: center !important;
+                        justify-content: center !important;
+                        padding: 4mm !important;
+                        box-sizing: border-box !important;
+                    }
+                    .delivery-note {
+                        width: 92mm !important;
+                        height: 92mm !important;
+                        margin: 0 !important;
+                    }
+                }
+            `;
+            document.head.appendChild(printStyle);
+            
+            // Print
             window.print();
+            
+            // Remove style setelah print
+            setTimeout(() => {
+                document.head.removeChild(printStyle);
+            }, 1000);
         }
 
         // Fungsi export PDF
